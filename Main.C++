@@ -50,7 +50,17 @@ void insert_from_file(char*, char*, char*, char*, char*, char*, char*, char*);
 Hàm tìm kiếm lớp, trả về 1 lớp có tên lớp được truyền vào đối số
 Nếu không tìm thấy sẽ tạo mới 1 lớp và trả về lớp đó (đối với dữ liệu từ file)
 */
+dslop* search_and_create_lop(char*);
+
+/*
+Hàm tìm kiếm lớp với tên cụ thể, trả về con trỏ tới lớp đó
+*/
 dslop* search_lop(char*);
+
+/*
+Hàm tìm kiếm sinh viên với số hiệu sinh viên cụ thể, trả về con trỏ tới sinh viên đó
+*/
+dssv* search_sinhvien(dslop*, char*);
 
 /*
 Hàm tạo ra 1 lớp với tên cụ thể, trả về con trỏ tới lớp được tạo ra (đối với dữ liệu từ file)
@@ -61,6 +71,21 @@ dslop* create_lop(char*);
 Hàm tạo ra 1 lớp với tên cụ thể được người dùng nhập vào từ bàn phím
 */
 dslop* create_lop();
+
+/*
+Hàm để xóa 1 lớp cụ thể, xóa luôn danh sách sinh viên trong lớp
+*/
+dslop* delete_lop(char*);
+
+/*
+Hàm để xóa 1 sinh viên cụ thể trong lớp theo số hiệu sinh viên và tên lớp
+*/
+dslop* delete_sinhvien(char*, char*);
+
+/*
+Hàm để cập nhật giá trị điểm của sinh viên
+*/
+dslop* update_sinhvien(char*, char*, int);
 
 /*
 Hàm tạo mới sinh viên, trả về 1 con trỏ trỏ tới sinh viên đó (đối với dữ liệu từ file)
@@ -222,7 +247,7 @@ dslop* create_lop(char* ten_lop) {
 Hàm tìm kiếm lớp, nếu không có thì tạo mới lớp
 Trả về con trỏ tới lớp vừa tạo
 */
-dslop* search_lop(char* ten_lop) {
+dslop* search_and_create_lop(char* ten_lop) {
     // nếu chưa có lớp nào thì gán head = lớp đó
     if(head_dslop == NULL) {
         head_dslop = create_lop(ten_lop);
@@ -306,7 +331,7 @@ dssv* create_sinhvien(char* shsv, char* hoten, char* ng, char* th, char* na, cha
 Hàm chèn sinh viên vào lớp tương ứng, chèn lớp vào danh sách lớp
 */
 void insert_from_file(char* ten_lop, char* shsv, char* hoten, char* ng, char* th, char* na, char* gioi_tinh, char* diem) {
-    dslop* tmp = search_lop(ten_lop); // tìm lớp của sinh viên
+    dslop* tmp = search_and_create_lop(ten_lop); // tìm lớp của sinh viên
     dssv* sv = create_sinhvien(shsv, hoten, ng, th, na, gioi_tinh, diem); // tạo mới sinh viên
     insert_sinhvien(tmp, sv); // chèn sinh viên vào lớp tìm được
 }
@@ -453,8 +478,9 @@ void insert_sinhvien(dslop* lop, dssv* sv) {
         } else {
             // nếu sinh viên đó có thể chèn ở đầu danh sách sinh viên
             if(checkSort(tmp, sv)) {
-                sv->nextsv = tmp->nextsv;
+                sv->nextsv = tmp;
                 lop->firstsvOflop = sv;
+                return;
             }
             // duyệt danh sách sinh viên trong lớp
             while(tmp->nextsv != NULL) {
@@ -470,6 +496,119 @@ void insert_sinhvien(dslop* lop, dssv* sv) {
             tmp->nextsv = sv;
         }
     }
+}
+
+
+
+/*
+Hàm để tìm 1 lớp với tên cụ thể, trả về con trỏ trỏ tới lớp đó
+*/
+dslop* search_lop(char* tenlop) {
+    dslop* loptmp = head_dslop;
+    while(loptmp != NULL) {
+        if(strcmp(loptmp->tenlop, tenlop) == 0) {
+            return loptmp;
+        } else {
+            loptmp = loptmp->nextlop;
+        }
+    }
+    return NULL;
+}
+
+
+
+/*
+Hàm để tìm 1 sinh viên với số hiệu sinh viên cụ thể, trả về con trỏ trỏ tới sinh viên đó
+*/
+dssv* search_sinhvien(dslop* lop, char* shsv) {
+    dssv* svtmp = lop->firstsvOflop;
+    while(svtmp != NULL) {
+        if(strcmp(svtmp->shsv, shsv) == 0) {
+            return svtmp;
+        } else {
+            svtmp = svtmp->nextsv;
+        }
+    }
+    return NULL;
+}
+
+
+
+/*
+Hàm để tìm 1 sinh viên với số hiệu sinh viên cụ thể, trả về con trỏ trỏ tới sinh viên đó
+*/
+dslop* update_sinhvien(char* tenlop, char* shsv, int diem) {
+    dslop* loptmp = search_lop(tenlop);
+    if(loptmp == NULL) {
+        return NULL;
+    }
+    dssv* svtmp = search_sinhvien(loptmp, shsv);
+    if(svtmp == NULL) {
+        return NULL;
+    }
+    svtmp->diem = diem;
+}
+
+
+
+/*
+Hàm để xóa 1 lớp cụ thể, xóa luôn danh sách sinh viên trong lớp
+*/
+dslop* delete_lop(char* tenlop) {
+    dslop* loptmp = search_lop(tenlop);
+    if(loptmp == NULL) {
+        return NULL;
+    }
+    dssv* svtmp = loptmp->firstsvOflop;
+    while(loptmp->firstsvOflop != NULL) {
+        svtmp = loptmp->firstsvOflop;
+        loptmp->firstsvOflop = svtmp->nextsv;
+        free(svtmp);
+    }
+    dslop* tmp = head_dslop;
+    if(strcmp(tmp->tenlop, tenlop) == 0) {
+        head_dslop = head_dslop->nextlop;
+        free(tmp);
+        return NULL;
+    }
+    while(tmp->nextlop != NULL) {
+        if(strcmp(tmp->nextlop->tenlop, tenlop) == 0) {
+            dslop* lop = tmp->nextlop;
+            tmp->nextlop =tmp->nextlop->nextlop;
+            free(lop);
+        } else {
+            tmp = tmp->nextlop;
+        }
+    }
+    return NULL;
+}
+
+
+
+/*
+Hàm để xóa 1 sinh viên trong 1 lớp theo số hiệu sinh viên
+*/
+dslop* delete_sinhvien(char* tenlop, char* shsv) {
+    dslop* loptmp = search_lop(tenlop);
+    if(loptmp == NULL) {
+        return NULL;
+    }
+    dssv* svtmp = loptmp->firstsvOflop;
+    if(strcmp(svtmp->shsv, shsv) == 0) {
+        loptmp->firstsvOflop = svtmp->nextsv;
+        free(svtmp);
+        return NULL;
+    }
+    while(svtmp->nextsv != NULL) {
+        if(strcmp(svtmp->nextsv->shsv, shsv) == 0) {
+            dssv* tmp = svtmp->nextsv;
+            svtmp->nextsv = svtmp->nextsv->nextsv;
+            free(tmp);
+        } else {
+            svtmp = svtmp->nextsv;
+        }
+    }
+    return NULL;
 }
 
 
@@ -529,6 +668,11 @@ int main() {
 
         // option 1
     read_file_input("dssv.txt");
+    delete_lop("TRAI GIAM SO 2");
+    delete_sinhvien("TRAI GIAM SO 1", "1111");
+    delete_sinhvien("TRAI GIAM SO 1", "1133");
+    delete_sinhvien("TRAI GIAM SO 3", "1123");
+    update_sinhvien("TRAI GIAM SO 3", "1122", 5);
     write_file_output("dssv_output.txt");
         // end of option 1
 

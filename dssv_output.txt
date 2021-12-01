@@ -1,16 +1,8 @@
 TRAI GIAM SO 1
 1111
-Huan Hoa Hong
+Bui Xuan Huan
 6
 9
-1969
-nam
-10
-TRAI GIAM SO 1
-1133
-Ngo Ba Kha
-6
-1
 1969
 nam
 10
@@ -29,28 +21,4 @@ Duong Trung Hieu
 9
 1996
 nam
-9
-TRAI GIAM SO 3
-1122
-Tran Cong Hoang
-6
-9
-1996
-nam
-9
-TRAI GIAM SO 2
-1111
-Tien Bip
-6
-9
-1969
-nam
-1
-TRAI GIAM SO 2
-1133
-Khanh Sky
-6
-1
-1969
-nam
-10
+5
