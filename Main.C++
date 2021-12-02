@@ -202,8 +202,10 @@ Hàm ghi dẽ liệu với path = "dssv_output.txt"
 void write_file_output(char* path) {
     FILE* f = fopen(path, "w"); // mở file để ghi
     dslop* loptmp = head_dslop;
+
     while(loptmp != NULL) {
         dssv* svtmp = loptmp->firstsvOflop;
+        
         while(svtmp != NULL) {
             fprintf(f, loptmp->tenlop);
             fprintf(f, "\n");
@@ -257,6 +259,7 @@ dslop* search_and_create_lop(char* ten_lop) {
         head_dslop = create_lop(ten_lop);
         return head_dslop;
     }
+
     // duyệt qua các lớp xem đã tồn tại chưa
     dslop* tmp = head_dslop;
     while(tmp != NULL) {
@@ -267,16 +270,20 @@ dslop* search_and_create_lop(char* ten_lop) {
             tmp = tmp->nextlop;
         }
     }
+
     // Nếu không tìm thấy thì tạo mới
     if(tmp == NULL) {
         tmp = head_dslop;
+
         // duyệt đến cuối danh sách
         while(tmp->nextlop != NULL) {
             tmp = tmp->nextlop;
         }
+
         // gán lớp đó vào cuối danh sách
         tmp->nextlop = create_lop(ten_lop);
     }
+
     // trả về lớp đó
     return tmp->nextlop;
 }
@@ -290,10 +297,13 @@ dssv* create_sinhvien(char* shsv, char* hoten, char* ng, char* th, char* na, cha
     dssv* tmp = new dssv();
 
     strcpy(tmp->shsv, shsv);
+
     // cấp phát động cho tên 
     tmp->Hoten = (char*) malloc((strlen(hoten)) * sizeof(char));
+
     // gán giá trị cho tên
     strcpy(tmp->Hoten, hoten);
+
     // gán giá trị cho ngày tháng năm sinh, chuyển đổi char về int
     tmp->ns.Ng = atoi(ng);
     tmp->ns.Th = atoi(th);
@@ -305,8 +315,19 @@ dssv* create_sinhvien(char* shsv, char* hoten, char* ng, char* th, char* na, cha
 
     tmp->nextsv = NULL;
 
+    // chuyển về dạng viết hoa chữ cái đầu
+    for(int i = 0; i < strlen(tmp->Hoten); i++) {
+        if(i == 0 && islower(tmp->Hoten[i])) {
+            tmp->Hoten[i] = toupper(tmp->Hoten[i]);
+        } 
+        if(i + 1 < strlen(tmp->Hoten) && tmp->Hoten[i] == ' ' && islower(tmp->Hoten[i + 1])) {
+            tmp->Hoten[i + 1] = toupper(tmp->Hoten[i + 1]);
+        }
+    }
+
     // tách tên từ họ và tên
     int space = -1; // biến đánh dấu vị trí dấu cách cuối cùng trong tên
+
     for(int i = strlen(tmp->Hoten) - 1; i >= 0; i--) {
         if(tmp->Hoten[i] == ' ') {
             space = i;
@@ -314,6 +335,7 @@ dssv* create_sinhvien(char* shsv, char* hoten, char* ng, char* th, char* na, cha
             break;
         }
     }
+
     if(space != -1) { // nếu có dấu cách
         tmp->ten = new char[strlen(tmp->Hoten) - space - 1];
         strcpy(tmp->ten, "");
@@ -403,6 +425,7 @@ dssv* create_sinhvien() {
             tmp->Hoten[i + 1] = toupper(tmp->Hoten[i + 1]);
         }
     }
+
     // tìm tên sinh viên (tương tự hàm cho dữ liệu từ file)
     int space = -1;
     for(int i = strlen(tmp->Hoten) - 1; i >= 0; i--) {
@@ -411,6 +434,7 @@ dssv* create_sinhvien() {
             break;
         }
     }
+    
     if(space != -1) {
         tmp->ten = new char[strlen(tmp->Hoten) - space - 1];
         strcpy(tmp->ten, "");
@@ -478,6 +502,7 @@ void insert_sinhvien(dslop* lop, dssv* sv) {
         lop->firstsvOflop = sv;
     } else {
         dssv* tmp = lop->firstsvOflop;
+
         // nếu lớp chỉ có 1 sinh viên
         if(tmp->nextsv == NULL) {
             if(checkSort(tmp, sv)) {
@@ -495,6 +520,7 @@ void insert_sinhvien(dslop* lop, dssv* sv) {
                 lop->firstsvOflop = sv;
                 return;
             }
+
             // duyệt danh sách sinh viên trong lớp
             while(tmp->nextsv != NULL) {
                 if(checkSort(tmp->nextsv, sv)) {
@@ -504,6 +530,7 @@ void insert_sinhvien(dslop* lop, dssv* sv) {
                     tmp = tmp->nextsv;
                 }
             }
+
             // chèn sinh viên vào vị trí vi phạm
             sv->nextsv = tmp->nextsv;
             tmp->nextsv = sv;
@@ -555,6 +582,7 @@ dslop* update_sinhvien(char* tenlop, char* shsv, int diem) {
     if(loptmp == NULL) {
         return NULL;
     }
+
     dssv* svtmp = search_sinhvien(loptmp, shsv);
     if(svtmp == NULL) {
         return NULL;
@@ -573,17 +601,20 @@ dslop* delete_lop(char* tenlop) {
         return NULL;
     }
     dssv* svtmp = loptmp->firstsvOflop;
+
     while(loptmp->firstsvOflop != NULL) {
         svtmp = loptmp->firstsvOflop;
         loptmp->firstsvOflop = svtmp->nextsv;
         free(svtmp);
     }
+
     dslop* tmp = head_dslop;
     if(strcmp(tmp->tenlop, tenlop) == 0) {
         head_dslop = head_dslop->nextlop;
         free(tmp);
         return NULL;
     }
+
     while(tmp->nextlop != NULL) {
         if(strcmp(tmp->nextlop->tenlop, tenlop) == 0) {
             dslop* lop = tmp->nextlop;
@@ -606,12 +637,15 @@ dslop* delete_sinhvien(char* tenlop, char* shsv) {
     if(loptmp == NULL) {
         return NULL;
     }
+
     dssv* svtmp = loptmp->firstsvOflop;
+
     if(strcmp(svtmp->shsv, shsv) == 0) {
         loptmp->firstsvOflop = svtmp->nextsv;
         free(svtmp);
         return NULL;
     }
+
     while(svtmp->nextsv != NULL) {
         if(strcmp(svtmp->nextsv->shsv, shsv) == 0) {
             dssv* tmp = svtmp->nextsv;
@@ -672,49 +706,8 @@ void show_list_lop() {
 
 /*
     Hướng dẫn sử dụng
-I. Option 1 - Đọc từ file
-    Chỉ cần chạy chương trình
-II. Option 2 - Nhập dữ liệu trực tiếp
-    Làm theo hướng dẫn hiển thị (hãy nhập những gì cần nhập)
 */
 int main() {
-
-        // option 1
-    // read_file_input("dssv.txt");
-    // delete_lop("TRAI GIAM SO 2");
-    // delete_sinhvien("TRAI GIAM SO 1", "1111");
-    // delete_sinhvien("TRAI GIAM SO 1", "1133");
-    // delete_sinhvien("TRAI GIAM SO 3", "1123");
-    // update_sinhvien("TRAI GIAM SO 3", "1122", 5);
-    // write_file_output("dssv_output.txt");
-        // end of option 1
-
-
-        // option 2
-    // dslop* lopA = create_lop();
-    // insert_lop(lopA);
-
-    // dssv* sv1 = create_sinhvien();
-    // insert_sinhvien(lopA, sv1);
-    // dssv* sv2 = create_sinhvien();
-    // insert_sinhvien(lopA, sv2);
-    // dssv* sv3 = create_sinhvien();
-    // insert_sinhvien(lopA, sv3);
-
-
-    // dslop* lopB = create_lop();
-    // insert_lop(lopB);
-
-    // dssv* sv11 = create_sinhvien();
-    // insert_sinhvien(lopB, sv11);
-    // dssv* sv22 = create_sinhvien();
-    // insert_sinhvien(lopB, sv22);
-    // dssv* sv33 = create_sinhvien();
-    // insert_sinhvien(lopB, sv33);
-        // end of option 2
-
-    // hiển thị
-    // show_list_lop();
     while(true) {
         cout << endl;
         cout << "Student Management Program" << endl;
@@ -728,8 +721,10 @@ int main() {
         cout << "7. Display list students and classes" << endl;
         cout << "8. Exit program" << endl;
         cout << ">> enter your choice: ";
+
         cin >> c;
         cin.ignore();
+
         if(c == 1) {
             cout << "File name: ";
             // example: dssv.txt
