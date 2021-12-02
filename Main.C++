@@ -135,6 +135,10 @@ Các biến toàn cục
 dslop* head_dslop = NULL; // con trỏ trỏ tới đầu danh sách các lớp được móc nối
 char name[1000]; // biến tạm thời để lưu tên nhập từ bàn phím
 char buffer [33]; // biến vùng đệm cho việc chuyển int thành char* để lưu file
+int c, score; // biến char lưu trữ thao tác chọn của người dùng
+char file_name[100],
+    mssv[10], // 
+    clazz[100]; //
 
 
 
@@ -390,6 +394,15 @@ dssv* create_sinhvien() {
 
     tmp->nextsv = NULL;
 
+    // chuyển về dạng viết hoa chữ cái đầu
+    for(int i = 0; i < strlen(tmp->Hoten); i++) {
+        if(i == 0 && islower(tmp->Hoten[i])) {
+            tmp->Hoten[i] = toupper(tmp->Hoten[i]);
+        } 
+        if(i + 1 < strlen(tmp->Hoten) && tmp->Hoten[i] == ' ' && islower(tmp->Hoten[i + 1])) {
+            tmp->Hoten[i + 1] = toupper(tmp->Hoten[i + 1]);
+        }
+    }
     // tìm tên sinh viên (tương tự hàm cho dữ liệu từ file)
     int space = -1;
     for(int i = strlen(tmp->Hoten) - 1; i >= 0; i--) {
@@ -667,13 +680,13 @@ II. Option 2 - Nhập dữ liệu trực tiếp
 int main() {
 
         // option 1
-    read_file_input("dssv.txt");
-    delete_lop("TRAI GIAM SO 2");
-    delete_sinhvien("TRAI GIAM SO 1", "1111");
-    delete_sinhvien("TRAI GIAM SO 1", "1133");
-    delete_sinhvien("TRAI GIAM SO 3", "1123");
-    update_sinhvien("TRAI GIAM SO 3", "1122", 5);
-    write_file_output("dssv_output.txt");
+    // read_file_input("dssv.txt");
+    // delete_lop("TRAI GIAM SO 2");
+    // delete_sinhvien("TRAI GIAM SO 1", "1111");
+    // delete_sinhvien("TRAI GIAM SO 1", "1133");
+    // delete_sinhvien("TRAI GIAM SO 3", "1123");
+    // update_sinhvien("TRAI GIAM SO 3", "1122", 5);
+    // write_file_output("dssv_output.txt");
         // end of option 1
 
 
@@ -701,7 +714,61 @@ int main() {
         // end of option 2
 
     // hiển thị
-    show_list_lop();
+    // show_list_lop();
+    while(true) {
+        cout << endl;
+        cout << "Student Management Program" << endl;
+        cout << "-----------MENU-----------"<< endl;
+        cout << "1. Add list students, classes from file" << endl;
+        cout << "2. Save data to specify file" << endl;
+        cout << "3. Add students by hand" << endl;
+        cout << "4. Delete a class (and delete all of students belong to the class)" << endl;
+        cout << "5. Delete a student" << endl;
+        cout << "6. Update student's score" << endl;
+        cout << "7. Display list students and classes" << endl;
+        cout << "8. Exit program" << endl;
+        cout << ">> enter your choice: ";
+        cin >> c;
+        cin.ignore();
+        if(c == 1) {
+            cout << "File name: ";
+            // example: dssv.txt
+            cin >> file_name;
+            read_file_input(file_name);
+        } else if(c == 2) {
+            cout << "File name: ";
+            // example: dssv.txt
+            cin >> file_name;
+            write_file_output(file_name);
+        } else if(c == 3) {
+            cout << "Class name: ";
+            cin.getline(clazz, 99);
+            insert_sinhvien(search_and_create_lop(clazz), create_sinhvien());
+        } else if(c == 4) {
+            cout << "Class name: ";
+            cin.getline(clazz, 99);
+            delete_lop(clazz);
+        } else if(c == 5) {
+            cout << "Class name: ";
+            cin.getline(clazz, 99);
+            cout << "Shsv: ";
+            cin >> mssv;
+            delete_sinhvien(clazz, mssv);
+        } else if(c == 6) {
+            cout << "Class name: ";
+            cin.getline(clazz, 99);
+            cout << "Shsv: ";
+            cin >> mssv;
+            cout << "Diem: ";
+            cin >> score;
+            cin.ignore();
+            update_sinhvien(clazz, mssv, score);
+        } else if(c == 7) {
+            show_list_lop();
+        } else {
+            break;
+        }
+    }
 
     return 0;
 }
